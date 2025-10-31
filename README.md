@@ -11,7 +11,7 @@ A blockchain-powered HR management system built on **Algorand**, designed for tr
 ## 🌐 Overview
 
 This project reimagines HR processes with **blockchain-verified identity, smart contracts, and decentralized storage**.  
-Each user — candidate, employee, or HR — interacts transparently through on-chain state changes and verifiable credentials.
+Each user - candidate, employee, or HR - interacts transparently through on-chain state changes and verifiable credentials.
 
 ### 🔁 Core Workflow
 
