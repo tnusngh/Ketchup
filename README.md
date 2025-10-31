@@ -2,9 +2,9 @@
 
 A blockchain-powered HR management system built on **Algorand**, designed for transparent onboarding, employment, and offboarding — using **DIDs, Verifiable Credentials (VCs), and ARC-28 events** for event-driven automation.
 
-> 🎥 [**Architecture Video (Watch Here)**](<INSERT_PUBLIC_VIDEO_LINK_HERE>)  
-> 🗂️ [**Architecture Diagram (View Here)**](<INSERT_DIAGRAM_LINK_HERE>)  
-> 📘 [**Project Documentation (View Here)**](<INSERT_DOC_LINK_HERE>)
+ 
+> 🗂️ [**Architecture Diagram (View Here)**](<https://github.com/Eshan-Sharma/ketchup>)  
+> 📘 [**Project Documentation (View Here)**](<https://docs.google.com/document/d/1KQrfrVOslkWWwHmRbE-CpZgHvQWvQHv_XQ7H8YF7Eyc/edit?usp=sharing>)
 
 ---
 
