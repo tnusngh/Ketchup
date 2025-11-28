@@ -86,3 +86,126 @@ sequenceDiagram
     EmploymentRegistryApp-->>Subscriber: ARC-28 EmployeeActivated Event
     Subscriber-->>Systems: Trigger IT / Payroll provisioning
 
+---
+
+## 🖥️ Application Architecture
+
+This repository contains a **full-stack application** for the Ketchup HR system, built with Next.js, React, and TypeScript. **Everything runs on a single server**.
+
+### Single Server Architecture
+
+- **Frontend**: Next.js React application (App Router)
+- **Backend API**: Next.js API routes (`/app/api/*`)
+- **Algorand Integration**: Client-side and server-side using AlgoKit 3
+- **Wallet Integration**: Pera Wallet browser extension
+- **All on One Server**: Port 2000 (configurable)
+
+### Features
+
+- **Multi-Dashboard System**: Separate dashboards for Employers, HR, Employees, and Managers
+- **Pera Algo Wallet Integration**: Connect and sign transactions using Pera Wallet
+- **Payroll Transactions**: Initiate and process payroll payments on Algorand blockchain
+- **AlgoKit 3 Integration**: Modern Algorand development tools
+- **Smart Contract Support**: All 8 HR smart contracts configured
+- **Modern UI**: Clean, minimal interface with dark mode support
+- **Responsive Design**: Works on desktop and mobile devices
+
+### Quick Start
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Set up environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open browser:**
+   Navigate to `http://localhost:2000`
+
+See [SETUP.md](./SETUP.md) for detailed setup instructions.
+
+### Algorand Environment Configuration
+
+The application is fully configured for the Algorand blockchain environment:
+
+- **AlgoKit 3**: Modern Algorand development tools
+- **Network Support**: Testnet, Mainnet, Betanet
+- **Smart Contracts**: All 8 HR smart contracts configured
+- **Wallet Integration**: Pera Wallet for transactions
+- **Single Server**: Everything runs on one Next.js server
+
+See [ALGORAND_ENVIRONMENT_SETUP.md](./ALGORAND_ENVIRONMENT_SETUP.md) for detailed Algorand configuration.
+
+See [SINGLE_SERVER_SETUP.md](./SINGLE_SERVER_SETUP.md) for server architecture details.
+
+### Requirements
+
+- **Node.js**: 18+ 
+- **npm** or **yarn**
+- **Pera Algo Wallet**: Browser extension for wallet integration
+- **Algorand Account**: Testnet or Mainnet account for testing
+
+### Project Structure
+
+```
+├── app/                    # Next.js app directory
+│   ├── api/               # Backend API routes
+│   │   └── payroll/       # Payroll transaction endpoints
+│   ├── employer/          # Employer dashboard pages
+│   ├── hr/                # HR dashboard pages
+│   ├── employee/          # Employee dashboard pages
+│   └── manager/           # Manager dashboard pages
+├── components/            # React components
+│   ├── ui/                # Reusable UI components
+│   ├── layout/            # Layout components
+│   ├── wallet/            # Wallet integration
+│   └── payroll/           # Payroll components
+├── lib/                   # Utilities
+│   ├── algorand/          # Algorand SDK integration
+│   └── api/               # API client functions
+├── hooks/                 # React hooks
+│   └── usePeraWallet.ts   # Pera Wallet hook
+└── types/                 # TypeScript definitions
+```
+
+### API Endpoints
+
+- `POST /api/payroll/initiate` - Create payroll transaction
+- `POST /api/payroll/send` - Send signed transaction
+- `GET /api/payroll/status` - Check transaction status
+
+### Wallet Integration
+
+The frontend uses **Pera Algo Wallet** for:
+- Wallet connection and authentication
+- Transaction signing
+- Account management
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_ALGORAND_NETWORK` | Network (testnet/mainnet/betanet) | `testnet` |
+| `NEXT_PUBLIC_PAYROLL_APP_ID` | Payroll smart contract ID | `0` |
+| `NEXT_PUBLIC_EMPLOYMENT_REGISTRY_APP_ID` | Employment registry app ID | `0` |
+| `NEXT_PUBLIC_IDENTITY_REGISTRY_APP_ID` | Identity registry app ID | `0` |
+| `NEXT_PUBLIC_CANDIDATE_PIPELINE_APP_ID` | Candidate pipeline app ID | `0` |
+| `NEXT_PUBLIC_LEAVE_MANAGER_APP_ID` | Leave manager app ID | `0` |
+| `NEXT_PUBLIC_RECOGNITION_APP_ID` | Recognition app ID | `0` |
+| `NEXT_PUBLIC_GRIEVANCE_DESK_APP_ID` | Grievance desk app ID | `0` |
+| `NEXT_PUBLIC_OFFBOARDING_APP_ID` | Offboarding app ID | `0` |
+| `PORT` | Server port | `2000` |
+
+See `.env.example` for complete configuration template.
+
+---
+
