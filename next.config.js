@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Railway deployment configuration
-  output: 'standalone', // Optimizes for Railway deployment
+  // Vercel automatically optimizes Next.js deployments
+  // No special configuration needed
 };
 
 module.exports = nextConfig;

@@ -1,0 +1,19 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_ALGORAND_NETWORK": "@algorand_network",
+    "NEXT_PUBLIC_PAYROLL_APP_ID": "@payroll_app_id",
+    "NEXT_PUBLIC_EMPLOYMENT_REGISTRY_APP_ID": "@employment_registry_app_id",
+    "NEXT_PUBLIC_IDENTITY_REGISTRY_APP_ID": "@identity_registry_app_id",
+    "NEXT_PUBLIC_CANDIDATE_PIPELINE_APP_ID": "@candidate_pipeline_app_id",
+    "NEXT_PUBLIC_LEAVE_MANAGER_APP_ID": "@leave_manager_app_id",
+    "NEXT_PUBLIC_RECOGNITION_APP_ID": "@recognition_app_id",
+    "NEXT_PUBLIC_GRIEVANCE_DESK_APP_ID": "@grievance_desk_app_id",
+    "NEXT_PUBLIC_OFFBOARDING_APP_ID": "@offboarding_app_id"
+  }
+}
+
