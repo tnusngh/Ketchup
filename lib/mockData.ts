@@ -320,6 +320,35 @@ export const mockTeamMembers = [
 ];
 
 export const mockComments: Comment[] = [
+];
+
+// Aliases for new UI components
+export const employees = mockEmployees;
+export const tasks = mockTasks.map(t => ({
+  ...t,
+  assignee: t.assigneeId,
+  status: t.status === 'in_progress' ? 'in-progress' : t.status,
+}));
+export const leaveRequests = mockLeaveRequests;
+export const recognitions = mockRecognitions;
+export const salaryData = mockSalaryInfo.map(s => ({
+  ...s,
+  employeeId: s.employeeId,
+  basic: s.basicSalary,
+  hra: s.hra,
+  allowances: s.allowances,
+  bonus: s.bonus || 0,
+  deductions: s.deductions,
+  netSalary: s.netSalary,
+  currency: s.currency || 'USD',
+}));
+
+export const dashboardStats = {
+  totalEmployees: mockEmployees.length,
+  tasksCompleted: mockTasks.filter(t => t.status === 'completed').length,
+  pendingLeaves: mockLeaveRequests.filter(l => l.status === 'pending').length,
+  activeEmployees: mockEmployees.filter(e => e.status === 'active').length,
+};
   {
     id: "comment1",
     taskId: "task1",

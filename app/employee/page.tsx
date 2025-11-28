@@ -1,431 +1,416 @@
 "use client";
 
-import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card } from "@/components/ui/Card";
-import { Tabs } from "@/components/ui/Tabs";
-import { Table } from "@/components/ui/Table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Button } from "@/components/ui/Button";
-import { WalletConnect } from "@/components/wallet/WalletConnect";
+import { StatCard } from "@/components/cards/StatCard";
+import { TaskCard } from "@/components/cards/TaskCard";
+import { RecognitionCard } from "@/components/cards/RecognitionCard";
+import { StatusBadge } from "@/components/atoms/StatusBadge";
+import { ProgressRing } from "@/components/atoms/ProgressRing";
+import { Button } from "@/components/ui/button";
+import { WalletModal } from "@/components/wallet/WalletModal";
+import { Progress } from "@/components/ui/progress";
+import {
+  tasks,
+  leaveRequests,
+  recognitions,
+  salaryData,
+} from "@/lib/mockData";
 import {
   ClipboardList,
   Calendar,
   Award,
-  DollarSign,
-  FileText,
-  Wallet,
   Bell,
-  CheckCircle,
+  Wallet,
+  FileText,
   Clock,
-  AlertCircle,
+  Plus,
 } from "lucide-react";
-import {
-  mockWorkLogs,
-  mockTasks,
-  mockLeaveRequests,
-  mockLeaveBalances,
-  mockRecognitions,
-  mockSalaryInfo,
-  mockDocuments,
-} from "@/lib/mockData";
-
-const currentEmployeeId = "emp1"; // In real app, this would come from auth
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function EmployeeDashboard() {
-  const [activeTab, setActiveTab] = useState("worklog");
+  const [walletModal, setWalletModal] = useState<{
+    open: boolean;
+    mode: 'connect' | 'view' | 'export';
+  }>({ open: false, mode: 'connect' });
 
-  const sidebarItems = [
-    { label: "Work Log", href: "#worklog", icon: ClipboardList },
-    { label: "Tasks", href: "#tasks", icon: CheckCircle },
-    { label: "Leave", href: "#leave", icon: Calendar },
-    { label: "Recognition", href: "#recognition", icon: Award },
-    { label: "Salary", href: "#salary", icon: DollarSign },
-    { label: "Documents", href: "#documents", icon: FileText },
-    { label: "Credentials", href: "#credentials", icon: Wallet },
-    { label: "Notifications", href: "#notifications", icon: Bell },
-  ];
+  const myTasks = tasks.filter((t) => t.assignee === 'EMP001');
+  const myLeaves = leaveRequests.filter((l) => l.employeeId === 'EMP001');
+  const myRecognitions = recognitions.filter((r) => r.employeeId === 'EMP001');
+  const mySalary = salaryData.find((s) => s.employeeId === 'EMP001');
 
-  const myTasks = mockTasks.filter((t) => t.assigneeId === currentEmployeeId);
-  const myLeaves = mockLeaveRequests.filter((l) => l.employeeId === currentEmployeeId);
-  const myLeaveBalance = mockLeaveBalances.find((lb) => lb.employeeId === currentEmployeeId);
-  const myRecognitions = mockRecognitions.filter((r) => r.employeeId === currentEmployeeId);
-  const mySalary = mockSalaryInfo.find((s) => s.employeeId === currentEmployeeId);
-  const myDocuments = mockDocuments.filter((d) => d.employeeId === currentEmployeeId);
-  const myWorkLogs = mockWorkLogs.filter((w) => w.employeeId === currentEmployeeId);
+  const completedTasks = myTasks.filter((t) => t.status === 'completed').length;
+  const inProgressTasks = myTasks.filter((t) => t.status === 'in-progress').length;
 
   return (
-    <DashboardLayout sidebarItems={sidebarItems} userRole="employee" userName="John Doe">
+    <DashboardLayout userRole="employee">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Completed Tasks</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {myTasks.filter((t) => t.status === "completed").length}
-                </p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pending Tasks</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {myTasks.filter((t) => t.status !== "completed").length}
-                </p>
-              </div>
-              <Clock className="w-8 h-8 text-yellow-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Leave Balance</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{myLeaveBalance?.total || 0} days</p>
-              </div>
-              <Calendar className="w-8 h-8 text-blue-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Recognitions</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{myRecognitions.length}</p>
-              </div>
-              <Award className="w-8 h-8 text-purple-600" />
-            </div>
-          </Card>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">My Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back, Sarah! Here's your work summary.
+            </p>
+          </div>
+          <Button
+            variant="wallet"
+            onClick={() => setWalletModal({ open: true, mode: 'connect' })}
+          >
+            <Wallet className="h-4 w-4" />
+            Sync with Pera Wallet
+          </Button>
         </div>
 
-        <Tabs
-          tabs={[
-            { id: "worklog", label: "Daily Work Log", icon: ClipboardList },
-            { id: "tasks", label: "Tasks", icon: CheckCircle },
-            { id: "leave", label: "Leave Application", icon: Calendar },
-            { id: "recognition", label: "Recognition History", icon: Award },
-            { id: "salary", label: "Salary Components", icon: DollarSign },
-            { id: "documents", label: "Documents", icon: FileText },
-            { id: "credentials", label: "Portable Credentials", icon: Wallet },
-            { id: "notifications", label: "Notifications", icon: Bell },
-          ]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-
-        {activeTab === "worklog" && <WorkLogModule workLogs={myWorkLogs} />}
-        {activeTab === "tasks" && <TasksModule tasks={myTasks} />}
-        {activeTab === "leave" && <LeaveModule leaves={myLeaves} leaveBalance={myLeaveBalance} />}
-        {activeTab === "recognition" && <RecognitionModule recognitions={myRecognitions} />}
-        {activeTab === "salary" && <SalaryModule salary={mySalary} />}
-        {activeTab === "documents" && <DocumentsModule documents={myDocuments} />}
-        {activeTab === "credentials" && <CredentialsModule recognitions={myRecognitions} />}
-        {activeTab === "notifications" && <NotificationsModule />}
-      </div>
-    </DashboardLayout>
-  );
-}
-
-function WorkLogModule({ workLogs }: { workLogs: typeof mockWorkLogs }) {
-  return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Daily Work Log</h2>
-        <Button>Add Entry</Button>
-      </div>
-      <Table
-        columns={[
-          { key: "date", label: "Date" },
-          { key: "hoursWorked", label: "Hours Worked" },
-          { key: "tasksCompleted", label: "Tasks Completed" },
-          { key: "notes", label: "Notes" },
-        ]}
-        data={workLogs.map((log) => ({
-          date: new Date(log.date).toLocaleDateString(),
-          hoursWorked: `${log.hoursWorked} hrs`,
-          tasksCompleted: log.tasksCompleted,
-          notes: log.notes,
-        }))}
-      />
-    </Card>
-  );
-}
-
-function TasksModule({ tasks }: { tasks: typeof mockTasks }) {
-  const completed = tasks.filter((t) => t.status === "completed");
-  const inProgress = tasks.filter((t) => t.status === "in_progress");
-  const pending = tasks.filter((t) => t.status === "pending");
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Assigned</h3>
-          <div className="space-y-3">
-            {pending.map((task) => (
-              <div key={task.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">{task.title}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{task.description}</p>
-                <div className="flex items-center justify-between">
-                  <StatusBadge status={task.status} />
-                  <span className="text-xs text-gray-500 dark:text-gray-500">
-                    Due: {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card>
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">In Progress</h3>
-          <div className="space-y-3">
-            {inProgress.map((task) => (
-              <div key={task.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">{task.title}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{task.description}</p>
-                <div className="flex items-center justify-between">
-                  <StatusBadge status={task.status} />
-                  <span className="text-xs text-gray-500 dark:text-gray-500">
-                    Due: {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card>
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Completed</h3>
-          <div className="space-y-3">
-            {completed.map((task) => (
-              <div key={task.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">{task.title}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{task.description}</p>
-                <div className="flex items-center justify-between">
-                  <StatusBadge status={task.status} />
-                  <span className="text-xs text-gray-500 dark:text-gray-500">
-                    Due: {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function LeaveModule({
-  leaves,
-  leaveBalance,
-}: {
-  leaves: typeof mockLeaveRequests;
-  leaveBalance?: (typeof mockLeaveBalances)[0];
-}) {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Leave Balance</h3>
-        {leaveBalance && (
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Sick Leave</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{leaveBalance.sick} days</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Vacation</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{leaveBalance.vacation} days</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Personal</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{leaveBalance.personal} days</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{leaveBalance.total} days</p>
-            </div>
-          </div>
-        )}
-      </Card>
-
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Leave Applications</h3>
-          <Button>Apply for Leave</Button>
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Tasks Assigned"
+            value={myTasks.length}
+            icon={ClipboardList}
+            variant="primary"
+          />
+          <StatCard
+            title="In Progress"
+            value={inProgressTasks}
+            icon={Clock}
+            variant="warning"
+          />
+          <StatCard
+            title="Completed"
+            value={completedTasks}
+            icon={Award}
+            trend={{ value: 15, positive: true }}
+            variant="success"
+          />
+          <StatCard
+            title="Leave Balance"
+            value="18 days"
+            icon={Calendar}
+            variant="default"
+          />
         </div>
-        <Table
-          columns={[
-            { key: "type", label: "Type" },
-            { key: "startDate", label: "Start Date" },
-            { key: "endDate", label: "End Date" },
-            { key: "status", label: "Status" },
-            { key: "reason", label: "Reason" },
-          ]}
-          data={leaves.map((leave) => ({
-            type: leave.type,
-            startDate: new Date(leave.startDate).toLocaleDateString(),
-            endDate: new Date(leave.endDate).toLocaleDateString(),
-            status: <StatusBadge status={leave.status} />,
-            reason: leave.reason,
-          }))}
-        />
-      </Card>
-    </div>
-  );
-}
 
-function RecognitionModule({ recognitions }: { recognitions: typeof mockRecognitions }) {
-  return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Recognition History</h2>
-      <div className="space-y-4">
-        {recognitions.map((rec) => (
-          <div key={rec.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
-                <Award className="w-6 h-6 text-yellow-600" />
+        {/* Tabs Section */}
+        <Tabs defaultValue="worklog" className="space-y-4">
+          <TabsList className="bg-secondary/50">
+            <TabsTrigger value="worklog">Daily Work Log</TabsTrigger>
+            <TabsTrigger value="tasks">My Tasks</TabsTrigger>
+            <TabsTrigger value="leave">Leave</TabsTrigger>
+            <TabsTrigger value="salary">Salary</TabsTrigger>
+            <TabsTrigger value="recognition">Recognition</TabsTrigger>
+          </TabsList>
+
+          {/* Work Log Tab */}
+          <TabsContent value="worklog" className="space-y-4">
+            <div className="rounded-xl border bg-card p-6">
+              <h3 className="font-semibold mb-4">Log Today's Work</h3>
+              <div className="space-y-4">
+                <Textarea
+                  placeholder="What did you work on today? Describe your tasks and progress..."
+                  className="min-h-[120px]"
+                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Last updated: 2 hours ago</span>
+                  </div>
+                  <Button>
+                    <Plus className="h-4 w-4" />
+                    Submit Log
+                  </Button>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{rec.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{rec.description}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
-                  <span>Issued by: {rec.issuedBy}</span>
-                  <span>Date: {new Date(rec.issuedAt).toLocaleDateString()}</span>
-                  {rec.credentialHash && (
-                    <span className="text-blue-600 dark:text-blue-400">Credential: {rec.credentialHash}</span>
+            </div>
+
+            <div className="rounded-xl border bg-card p-6">
+              <h3 className="font-semibold mb-4">Recent Logs</h3>
+              <div className="space-y-4">
+                {[
+                  {
+                    date: 'Today',
+                    content: 'Implemented user authentication module. Fixed 3 bugs in dashboard.',
+                    hours: 6,
+                  },
+                  {
+                    date: 'Yesterday',
+                    content: 'Code review for team members. Attended sprint planning meeting.',
+                    hours: 7,
+                  },
+                  {
+                    date: 'Jan 25',
+                    content: 'Completed API integration. Documentation updates.',
+                    hours: 8,
+                  },
+                ].map((log, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-4 p-4 rounded-lg bg-muted/30"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm">{log.date}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {log.hours}h logged
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{log.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">My Tasks</h2>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <ProgressRing value={(completedTasks / myTasks.length) * 100} size={40} />
+                  <span className="text-sm text-muted-foreground">
+                    {completedTasks}/{myTasks.length} done
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {myTasks.map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Leave Tab */}
+          <TabsContent value="leave" className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="rounded-xl border bg-card p-6">
+                <h3 className="font-semibold mb-4">Leave Balance</h3>
+                <div className="space-y-4">
+                  {[
+                    { type: 'Annual', total: 20, used: 5, color: 'primary' },
+                    { type: 'Sick', total: 10, used: 2, color: 'warning' },
+                    { type: 'Personal', total: 5, used: 1, color: 'accent' },
+                  ].map((leave) => (
+                    <div key={leave.type} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{leave.type}</span>
+                        <span className="text-muted-foreground">
+                          {leave.total - leave.used} remaining
+                        </span>
+                      </div>
+                      <Progress
+                        value={(leave.used / leave.total) * 100}
+                        className="h-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <Button className="w-full mt-6">
+                  <Plus className="h-4 w-4" />
+                  Apply for Leave
+                </Button>
+              </div>
+
+              <div className="lg:col-span-2 rounded-xl border bg-card p-6">
+                <h3 className="font-semibold mb-4">Leave History</h3>
+                <div className="space-y-3">
+                  {myLeaves.length > 0 ? (
+                    myLeaves.map((leave) => (
+                      <div
+                        key={leave.id}
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/30"
+                      >
+                        <div>
+                          <p className="font-medium capitalize">{leave.type} Leave</p>
+                          <p className="text-sm text-muted-foreground">
+                            {leave.startDate} - {leave.endDate}
+                          </p>
+                        </div>
+                        <StatusBadge status={leave.status} />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">
+                      No leave requests yet
+                    </p>
                   )}
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
+          </TabsContent>
 
-function SalaryModule({ salary }: { salary?: (typeof mockSalaryInfo)[0] }) {
-  if (!salary) return <Card>No salary information available</Card>;
-
-  return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Salary Components</h2>
-      <div className="space-y-3">
-        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-          <span className="text-gray-600 dark:text-gray-400">Base Salary</span>
-          <span className="font-semibold text-gray-900 dark:text-white">${salary.baseSalary.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-          <span className="text-gray-600 dark:text-gray-400">Allowances</span>
-          <span className="font-semibold text-gray-900 dark:text-white">${salary.allowances.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-          <span className="text-gray-600 dark:text-gray-400">Deductions</span>
-          <span className="font-semibold text-gray-900 dark:text-white">-${salary.deductions.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between py-3 pt-3 border-t-2 border-gray-300 dark:border-gray-600">
-          <span className="text-lg font-semibold text-gray-900 dark:text-white">Net Salary</span>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">${salary.netSalary.toLocaleString()}</span>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Period: {salary.period}</p>
-      </div>
-    </Card>
-  );
-}
-
-function DocumentsModule({ documents }: { documents: typeof mockDocuments }) {
-  return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Documents</h2>
-      <div className="space-y-2">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">{doc.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500">
-                  {doc.type} • {new Date(doc.uploadedAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <StatusBadge status={doc.status} />
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-function CredentialsModule({ recognitions }: { recognitions: typeof mockRecognitions }) {
-  return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Portable Credentials</h2>
-        <WalletConnect />
-      </div>
-      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Your work proofs, recognitions, and experience credentials are stored in your Pera Algo Wallet. Click
-          "Sync Credentials" to update your wallet with the latest credentials.
-        </p>
-      </div>
-      <div className="space-y-4">
-        {recognitions
-          .filter((r) => r.credentialHash)
-          .map((rec) => (
-            <div key={rec.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{rec.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{rec.description}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                    Credential Hash: {rec.credentialHash}
-                  </p>
+          {/* Salary Tab */}
+          <TabsContent value="salary" className="space-y-4">
+            <div className="rounded-xl border bg-card p-6">
+              <h3 className="font-semibold mb-6">Salary Breakdown</h3>
+              {mySalary && (
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-muted-foreground">
+                      Earnings
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between p-3 rounded-lg bg-success/5 border border-success/10">
+                        <span>Basic Salary</span>
+                        <span className="font-semibold">
+                          ${mySalary.basic.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between p-3 rounded-lg bg-success/5 border border-success/10">
+                        <span>HRA</span>
+                        <span className="font-semibold">
+                          ${mySalary.hra.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between p-3 rounded-lg bg-success/5 border border-success/10">
+                        <span>Allowances</span>
+                        <span className="font-semibold">
+                          ${mySalary.allowances.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
+                        <span>Bonus</span>
+                        <span className="font-semibold text-success">
+                          +${mySalary.bonus.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-muted-foreground">
+                      Deductions
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                        <span>Tax & Deductions</span>
+                        <span className="font-semibold text-destructive">
+                          -${mySalary.deductions.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-8 p-4 rounded-xl gradient-primary text-primary-foreground">
+                      <p className="text-sm opacity-90">Net Salary</p>
+                      <p className="text-3xl font-bold">
+                        ${mySalary.netSalary.toLocaleString()}
+                      </p>
+                      <p className="text-sm opacity-75 mt-1">
+                        Per month • {mySalary.currency}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  Export Proof
-                </Button>
-              </div>
+              )}
             </div>
-          ))}
-      </div>
-      <div className="mt-4">
-        <Button className="w-full">Sync Credentials with Pera Wallet</Button>
-      </div>
-    </Card>
-  );
-}
+          </TabsContent>
 
-function NotificationsModule() {
-  const notifications = [
-    { id: "1", message: "Your leave request has been approved", time: "2 hours ago", type: "success" },
-    { id: "2", message: "New task assigned: Fix bug in payment module", time: "5 hours ago", type: "info" },
-    { id: "3", message: "You received a recognition: Employee of the Month", time: "1 day ago", type: "success" },
-  ];
+          {/* Recognition Tab */}
+          <TabsContent value="recognition" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">
+                My Achievements
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {myRecognitions.length} awards earned
+              </span>
+            </div>
 
-  return (
-    <Card>
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Notifications</h2>
-      <div className="space-y-3">
-        {notifications.map((notif) => (
-          <div
-            key={notif.id}
-            className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-          >
-            <p className="text-gray-900 dark:text-white">{notif.message}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{notif.time}</p>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {myRecognitions.map((recognition) => (
+                <RecognitionCard key={recognition.id} recognition={recognition} />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Notifications Panel */}
+        <div className="rounded-xl border bg-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Notifications
+            </h3>
+            <Button variant="ghost" size="sm">
+              Mark all read
+            </Button>
           </div>
-        ))}
+          <div className="space-y-3">
+            {[
+              {
+                title: 'Leave Approved',
+                message: 'Your annual leave request has been approved',
+                time: '2 hours ago',
+                read: false,
+              },
+              {
+                title: 'New Task Assigned',
+                message: 'You have been assigned to "API Integration"',
+                time: '5 hours ago',
+                read: false,
+              },
+              {
+                title: 'Recognition Received',
+                message: 'James Wilson awarded you "Innovation Champion"',
+                time: '1 day ago',
+                read: true,
+              },
+            ].map((notif, i) => (
+              <div
+                key={i}
+                className={`p-4 rounded-lg ${
+                  notif.read ? 'bg-muted/30' : 'bg-primary/5 border border-primary/10'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{notif.title}</p>
+                    <p className="text-sm text-muted-foreground">{notif.message}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{notif.time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div className="rounded-xl border bg-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              My Documents
+            </h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { name: 'Offer Letter', date: 'Mar 15, 2023', type: 'PDF' },
+              { name: 'NDA Agreement', date: 'Mar 15, 2023', type: 'PDF' },
+              { name: 'Appraisal Letter', date: 'Jan 10, 2024', type: 'PDF' },
+              { name: 'Tax Documents', date: 'Jan 05, 2024', type: 'PDF' },
+            ].map((doc, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-4 rounded-lg border bg-muted/20 hover:bg-muted/40 cursor-pointer transition-colors"
+              >
+                <FileText className="h-8 w-8 text-primary" />
+                <div>
+                  <p className="font-medium text-sm">{doc.name}</p>
+                  <p className="text-xs text-muted-foreground">{doc.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </Card>
+
+      <WalletModal
+        open={walletModal.open}
+        onOpenChange={(open) => setWalletModal({ ...walletModal, open })}
+        mode={walletModal.mode}
+      />
+    </DashboardLayout>
   );
 }
-
